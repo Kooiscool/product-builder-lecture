@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://giftpedia.kr/sitemap.xml
+Sitemap: https://giftpedia.kr/feed.xml
