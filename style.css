@@ -183,3 +183,21 @@ button#generate-btn:active {
 .submit-btn:hover {
   background-color: var(--btn-hover);
 }
+
+/* Comments Section */
+.comments-section {
+  margin-top: 40px;
+  text-align: left;
+}
+
+.comments-section hr {
+  border: none;
+  border-top: 1px solid var(--divider-color);
+  margin-bottom: 25px;
+}
+
+.comments-section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
