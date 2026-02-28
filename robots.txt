@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://giftpedia.kr/sitemap.xml
-Sitemap: https://giftpedia.kr/feed.xml
+Sitemap: https://product-builder-lecture-a6r.pages.dev/sitemap.xml
+Sitemap: https://product-builder-lecture-a6r.pages.dev/feed.xml
