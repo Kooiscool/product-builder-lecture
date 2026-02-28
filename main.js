@@ -180,6 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('recommend-btn')) {
     initRecommender();
   }
+
+  // SNS 공유 기능
+  renderShareButtons();
+  renderFloatingShare();
 });
 
 /* ===================== NAVIGATION ===================== */
@@ -601,4 +605,150 @@ function initRecommender() {
     resultContainer.style.transform = 'scale(1)';
     resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
+}
+
+/* ===================== SNS SHARE ===================== */
+const SHARE_SVG = {
+  twitter: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'
+};
+
+function getPageMeta() {
+  const title = document.title;
+  const desc = document.querySelector('meta[name="description"]')?.content || '';
+  const url = window.location.href;
+  return { title, desc, url };
+}
+
+function showShareToast(msg) {
+  let toast = document.querySelector('.share-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'share-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function shareToTwitter(text, url) {
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  window.open(twitterUrl, '_blank', 'width=550,height=420');
+}
+
+function shareToFacebook(url) {
+  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  window.open(fbUrl, '_blank', 'width=550,height=420');
+}
+
+function copyShareUrl(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    showShareToast('링크가 복사되었습니다!');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showShareToast('링크가 복사되었습니다!');
+  });
+}
+
+function nativeShare(title, text, url) {
+  navigator.share({ title, text, url }).catch(() => {});
+}
+
+function createShareButtonsHTML(customText) {
+  const meta = getPageMeta();
+  const text = customText || meta.title;
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  const nativeBtn = isMobile && navigator.share
+    ? `<button class="share-btn share-btn--native" data-action="native">${SHARE_SVG.share} 공유하기</button>`
+    : '';
+
+  return `
+    <div class="share-buttons">
+      <button class="share-btn share-btn--twitter" data-action="twitter">${SHARE_SVG.twitter} 트위터</button>
+      <button class="share-btn share-btn--facebook" data-action="facebook">${SHARE_SVG.facebook} 페이스북</button>
+      <button class="share-btn share-btn--copy" data-action="copy">${SHARE_SVG.copy} URL 복사</button>
+      ${nativeBtn}
+    </div>
+  `;
+}
+
+function bindShareEvents(container, customText) {
+  const meta = getPageMeta();
+  const text = customText || meta.title;
+
+  container.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      if (action === 'twitter') shareToTwitter(text, meta.url);
+      else if (action === 'facebook') shareToFacebook(meta.url);
+      else if (action === 'copy') copyShareUrl(meta.url);
+      else if (action === 'native') nativeShare(meta.title, text, meta.url);
+    });
+  });
+}
+
+function renderShareButtons() {
+  // 아티클 페이지 인라인 공유
+  const articleShare = document.getElementById('share-buttons');
+  if (articleShare) {
+    articleShare.innerHTML = `<h3>이 글이 도움이 되셨나요? 공유해 주세요!</h3>${createShareButtonsHTML()}`;
+    bindShareEvents(articleShare);
+  }
+
+  // 추천 결과 공유
+  const rcShare = document.getElementById('rc-share-buttons');
+  if (rcShare) {
+    const text = '선물백과에서 맞춤 선물을 추천받았어요!';
+    rcShare.innerHTML = `<h3>추천 결과를 친구에게 공유해 보세요!</h3>${createShareButtonsHTML(text)}`;
+    bindShareEvents(rcShare, text);
+  }
+}
+
+function renderFloatingShare() {
+  const container = document.getElementById('floating-share');
+  if (!container) return;
+
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  const nativeBtn = isMobile && navigator.share
+    ? `<button class="share-btn share-btn--native" data-action="native">${SHARE_SVG.share} 공유</button>`
+    : '';
+
+  container.innerHTML = `
+    <div class="floating-share-menu" id="floating-share-menu">
+      <button class="share-btn share-btn--twitter" data-action="twitter">${SHARE_SVG.twitter} 트위터</button>
+      <button class="share-btn share-btn--facebook" data-action="facebook">${SHARE_SVG.facebook} 페이스북</button>
+      <button class="share-btn share-btn--copy" data-action="copy">${SHARE_SVG.copy} URL 복사</button>
+      ${nativeBtn}
+    </div>
+    <button class="floating-share-toggle" id="floating-share-toggle" aria-label="공유하기">
+      ${SHARE_SVG.share}
+    </button>
+  `;
+
+  const toggleBtn = document.getElementById('floating-share-toggle');
+  const menu = document.getElementById('floating-share-menu');
+
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = menu.classList.toggle('active');
+    toggleBtn.classList.toggle('active', isOpen);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.floating-share')) {
+      menu.classList.remove('active');
+      toggleBtn.classList.remove('active');
+    }
+  });
+
+  bindShareEvents(container);
 }

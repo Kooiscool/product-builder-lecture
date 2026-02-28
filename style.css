@@ -1396,3 +1396,197 @@ select:focus {
   border-bottom: 2px solid var(--primary-color);
   display: inline-block;
 }
+
+/* ===================== SNS SHARE BUTTONS ===================== */
+.share-section {
+  margin-top: 40px;
+  padding: 30px 0;
+  border-top: 1px solid var(--divider-color);
+  text-align: center;
+}
+
+.share-section h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.share-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  text-decoration: none;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.share-btn:hover {
+  opacity: 0.85;
+}
+
+.share-btn:active {
+  transform: scale(0.96);
+}
+
+.share-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.share-btn--twitter {
+  background: #000000;
+  color: #ffffff;
+}
+
+.share-btn--facebook {
+  background: #1877F2;
+  color: #ffffff;
+}
+
+.share-btn--copy {
+  background: var(--tag-bg);
+  color: var(--text-color);
+}
+
+.share-btn--native {
+  background: var(--primary-color);
+  color: #ffffff;
+}
+
+/* ===== Floating Share Button ===== */
+.floating-share {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+}
+
+.floating-share-toggle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background-color 0.2s;
+  font-size: 0;
+}
+
+.floating-share-toggle:hover {
+  transform: scale(1.08);
+}
+
+.floating-share-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.floating-share-toggle.active {
+  background: var(--text-color);
+}
+
+.floating-share-menu {
+  position: absolute;
+  bottom: 64px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+}
+
+.floating-share-menu.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.floating-share-menu .share-btn {
+  white-space: nowrap;
+  padding: 10px 16px;
+  border-radius: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  font-size: 0.84rem;
+}
+
+/* ===== Share Toast ===== */
+.share-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.share-toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+[data-theme="dark"] .share-toast {
+  background: #e0e0e0;
+  color: #1a1a2e;
+}
+
+/* ===== Recommender Result Share ===== */
+.rc-share-section {
+  margin: 30px 0 20px;
+  text-align: center;
+}
+
+.rc-share-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--text-color);
+}
+
+@media (max-width: 480px) {
+  .share-buttons {
+    gap: 8px;
+  }
+  .share-btn {
+    padding: 9px 14px;
+    font-size: 0.82rem;
+  }
+  .floating-share {
+    bottom: 16px;
+    right: 16px;
+  }
+}
