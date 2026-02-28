@@ -1,44 +1,71 @@
 document.addEventListener('DOMContentLoaded', () => {
   const recommendBtn = document.getElementById('recommend-btn');
-  const priceRangeSelect = document.getElementById('price-range');
+  const ageSelect = document.getElementById('age-group');
+  const styleSelect = document.getElementById('style-type');
+  const priceSelect = document.getElementById('price-range');
+  
   const resultContainer = document.getElementById('result');
   const giftNameEl = document.getElementById('gift-name');
   const giftDescEl = document.getElementById('gift-desc');
   const themeToggleBtn = document.getElementById('theme-toggle');
 
-  // Gift Database
-  const gifts = {
-    under1: [
-      { name: "페레로로쉐 T8 하트", desc: "실패 없는 달콤함, 하트 모양 포장 🍫" },
-      { name: "양키캔들 보티브", desc: "작지만 강한 향기, 블랙체리 향 추천 🕯️" },
-      { name: "이니스프리 핸드크림", desc: "제주 풍경을 담은 향긋한 핸드크림 🧴" },
-      { name: "스타벅스 e-기프트카드", desc: "가장 실용적인 커피 한 잔의 여유 ☕" }
-    ],
-    '1to3': [
-      { name: "논픽션 핸드크림", desc: "감각적인 패키지와 독보적인 향 🧴" },
-      { name: "러쉬 바디스프레이 (미니)", desc: "은은하고 매력적인 잔향의 바디스프레이 🌸" },
-      { name: "고디바 초콜릿 컬렉션", desc: "벨기에 프리미엄 초콜릿의 정석 💝" },
-      { name: "스탠리 보온보냉 텀블러", desc: "디자인과 실용성을 모두 잡은 텀블러 ☕" }
-    ],
-    '3to5': [
-      { name: "이솝(Aesop) 핸드 밤", desc: "시그니처 아로마 향의 고급 핸드크림 ✨" },
-      { name: "딥티크(Diptyque) 고체 향수", desc: "휴대하기 좋은 시크한 고체 향수 🌹" },
-      { name: "크로우캐년 커플 머그컵", desc: "힙한 마블 패턴의 커플 아이템 🥤" },
-      { name: "록시땅(L'OCCITANE) 샤워젤 세트", desc: "피로를 풀어주는 향기로운 바디워시 🛀" }
-    ],
-    '5to10': [
-      { name: "샤넬 루쥬 코코 립밤", desc: "누구나 좋아하는 럭셔리 뷰티 💄" },
-      { name: "조말론 런던 디퓨저", desc: "공간을 고급스럽게 채우는 향기 🌿" },
-      { name: "아웃백 스테이크하우스 상품권", desc: "맛있는 스테이크 데이트 🥩" },
-      { name: "아크네 스튜디오 비니", desc: "포인트 주기 좋은 귀여운 패션템 🧣" }
-    ],
-    over10: [
-      { name: "신라호텔 더 파크뷰 식사권 2인", desc: "최고급 뷔페에서 즐기는 특별한 저녁 🍽️" },
-      { name: "애플 에어팟 프로 2세대", desc: "최고의 노이즈 캔슬링 무선 이어폰 🎧" },
-      { name: "메종 마르지엘라 카드지갑", desc: "감성을 더해주는 심플한 레더 굿즈 🪪" },
-      { name: "시그니엘 서울 호캉스", desc: "최고급 호텔에서 즐기는 완벽한 휴식 🏨" }
-    ]
-  };
+  // Gift Database with tags
+  const gifts = [
+    // --- 3만원 이하 (under3) ---
+    { name: "올리브영 기프트카드 3만원권", desc: "가장 실용적인 화장품 쇼핑 찬스 💄", age: ["10s", "20s", "30s"], style: "beauty", price: "under3" },
+    { name: "롬앤/페리페라 베스트 틴트", desc: "학생들에게 인기 만점인 예쁜 컬러 💋", age: ["10s"], style: "beauty", price: "under3" },
+    { name: "탬버린즈 튜브 핸드크림", desc: "요즘 가장 힙한 브랜드의 향기 🧴", age: ["20s", "30s"], style: "beauty", price: "under3" },
+    
+    { name: "카카오프렌즈 춘식이 인형", desc: "귀여운 걸 좋아한다면 실패 없는 선택 🧸", age: ["10s", "20s"], style: "romantic", price: "under3" },
+    { name: "양키캔들 스몰자 + 워머", desc: "방 안을 은은한 분위기로 채워줄 향기 🕯️", age: ["20s", "30s"], style: "romantic", price: "under3" },
+    
+    { name: "모트모트 플래너 & 문구세트", desc: "공부할 때 기분 좋아지는 예쁜 학용품 📝", age: ["10s"], style: "practical", price: "under3" },
+    { name: "스타벅스 e-기프트카드", desc: "언제든 쓸 수 있는 생명수 쿠폰 ☕", age: ["20s", "30s"], style: "practical", price: "under3" },
+    { name: "귀여운 수면양말 세트", desc: "발끝까지 따뜻하고 포근하게 🧦", age: ["10s", "20s", "30s"], style: "practical", price: "under3" },
+
+    { name: "마라탕/엽떡 배달 기프티콘", desc: "스트레스가 확 풀리는 맛있는 선물 떡볶이 🌶️", age: ["10s", "20s"], style: "foodie", price: "under3" },
+    { name: "고디바 초콜릿 골드 컬렉션", desc: "발렌타인데이의 정석, 고급스러운 달콤함 🍫", age: ["20s", "30s"], style: "foodie", price: "under3" },
+
+    // --- 3만원 ~ 5만원 (3to5) ---
+    { name: "맥(MAC) 총알 립스틱", desc: "여성들의 영원한 스테디셀러 뷰티템 💄", age: ["20s", "30s"], style: "beauty", price: "3to5" },
+    { name: "러쉬(LUSH) 배쓰밤 세트", desc: "하루의 피로를 녹여주는 향기로운 입욕 🛁", age: ["10s", "20s", "30s"], style: "beauty", price: "3to5" },
+    { name: "이솝(Aesop) 레저렉션 핸드 밤", desc: "시그니처 아로마 향의 고급 핸드크림 ✨", age: ["20s", "30s"], style: "beauty", price: "3to5" },
+
+    { name: "크로우캐년 마블 머그컵", desc: "SNS에서 핫한 힙한 디자인의 컵 🥤", age: ["10s", "20s"], style: "romantic", price: "3to5" },
+    { name: "감성 무드등 / 단스탠드", desc: "침대 옆에 두기 좋은 따뜻한 조명 💡", age: ["20s", "30s"], style: "romantic", price: "3to5" },
+
+    { name: "스탠리(STANLEY) 퀜처 텀블러", desc: "요즘 대세! 엄청난 보온보냉의 실용템 🧊", age: ["10s", "20s", "30s"], style: "practical", price: "3to5" },
+    { name: "록시땅 시어버터 보습 세트", desc: "건조한 겨울철 필수 아이템 🧴", age: ["20s", "30s"], style: "practical", price: "3to5" },
+
+    { name: "유명 카페 디저트 기프티콘", desc: "노티드, 아우어베이커리 등 핫플 빵지순례 🥐", age: ["10s", "20s"], style: "foodie", price: "3to5" },
+    { name: "분위기 좋은 와인 & 치즈 세트", desc: "로맨틱한 저녁을 완성해줄 와인 한 병 🍷", age: ["20s", "30s"], style: "foodie", price: "3to5" },
+
+    // --- 5만원 ~ 10만원 (5to10) ---
+    { name: "샤넬 루쥬 코코 밤", desc: "로고만으로도 기분 좋아지는 럭셔리 립밤 💋", age: ["20s", "30s"], style: "beauty", price: "5to10" },
+    { name: "조말론 런던 30ml 향수", desc: "호불호 적은 베스트셀러 니치 향수 🌿", age: ["20s", "30s"], style: "beauty", price: "5to10" },
+
+    { name: "스톤헨지/제이에스티나 목걸이", desc: "목선을 예쁘게 빛내줄 데일리 주얼리 💎", age: ["20s", "30s"], style: "romantic", price: "5to10" },
+    { name: "폴로 랄프로렌 케이블 니트 머플러", desc: "클래식하고 따뜻한 겨울 필수템 🧣", age: ["10s", "20s", "30s"], style: "practical", price: "5to10" },
+
+    { name: "아크네 스튜디오 비니", desc: "귀여운 로고가 포인트인 힙한 패션템 🧢", age: ["10s", "20s"], style: "practical", price: "5to10" },
+    { name: "오덴세(odense) 식기 세트", desc: "예쁜 그릇을 좋아한다면 최고의 선물 🍽️", age: ["30s"], style: "practical", price: "5to10" },
+
+    { name: "아웃백 스테이크하우스 10만원권", desc: "투움바 파스타와 스테이크 배터지게 먹기 🥩", age: ["10s", "20s", "30s"], style: "foodie", price: "5to10" },
+    { name: "미들급 스시 오마카세 1인/런치 2인", desc: "눈과 입이 즐거운 특별한 식사 경험 🍣", age: ["20s", "30s"], style: "foodie", price: "5to10" },
+
+    // --- 10만원 이상 (over10) ---
+    { name: "다이슨 에어랩 멀티 스타일러", desc: "모든 여성들의 워너비 뷰티 가전 💇‍♀️", age: ["20s", "30s"], style: "beauty", price: "over10" },
+    { name: "바이레도(BYREDO) 50ml 향수", desc: "독보적인 감성의 하이엔드 니치 향수 🌹", age: ["20s", "30s"], style: "beauty", price: "over10" },
+
+    { name: "티파니앤코(Tiffany&Co) 미니 펜던트", desc: "민트색 박스가 주는 엄청난 설렘 💍", age: ["20s", "30s"], style: "romantic", price: "over10" },
+    { name: "신라호텔 망고 쇼트케이크 & 와인", desc: "최고급 호텔 베이커리에서 준비한 로맨틱 🍰", age: ["20s", "30s"], style: "romantic", price: "over10" },
+
+    { name: "애플 에어팟 프로 2세대", desc: "출퇴근/통학길의 질을 높여주는 노이즈 캔슬링 🎧", age: ["10s", "20s", "30s"], style: "practical", price: "over10" },
+    { name: "메종 마르지엘라 스티치 카드지갑", desc: "감성을 더해주는 심플한 명품 가죽 굿즈 🪪", age: ["20s", "30s"], style: "practical", price: "over10" },
+
+    { name: "호텔 뷔페(파크뷰/라세느/아리아) 2인권", desc: "기념일의 끝판왕, 최고급 다이닝 🦞", age: ["20s", "30s"], style: "foodie", price: "over10" },
+    { name: "5성급 럭셔리 호텔 호캉스", desc: "하루 종일 아무것도 안 하고 푹 쉬는 완벽한 휴식 🏨", age: ["20s", "30s"], style: "foodie", price: "over10" }
+  ];
 
   // Theme checking logic
   const currentTheme = localStorage.getItem('theme');
@@ -68,12 +95,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Recommend logic
   recommendBtn.addEventListener('click', () => {
-    const selectedRange = priceRangeSelect.value;
-    const options = gifts[selectedRange];
-    
-    // Pick random gift
-    const randomIndex = Math.floor(Math.random() * options.length);
-    const selectedGift = options[randomIndex];
+    const selectedAge = ageSelect.value;
+    const selectedStyle = styleSelect.value;
+    const selectedPrice = priceSelect.value;
+
+    if (!selectedAge || !selectedStyle || !selectedPrice) {
+      alert("그녀의 정보를 모두 선택해주세요! 😉");
+      return;
+    }
+
+    // 1순위: 예산, 연령대, 스타일 모두 일치하는 선물
+    let filteredGifts = gifts.filter(gift => 
+      gift.price === selectedPrice && 
+      gift.age.includes(selectedAge) && 
+      gift.style === selectedStyle
+    );
+
+    // 2순위: 예산과 스타일만 일치 (연령대 무관하게)
+    if (filteredGifts.length === 0) {
+      filteredGifts = gifts.filter(gift => 
+        gift.price === selectedPrice && 
+        gift.style === selectedStyle
+      );
+    }
+
+    // 3순위: 예산만 일치 (적어도 가격대는 맞춰서 아무거나)
+    if (filteredGifts.length === 0) {
+      filteredGifts = gifts.filter(gift => 
+        gift.price === selectedPrice
+      );
+    }
+
+    // Pick random gift from filtered options
+    const randomIndex = Math.floor(Math.random() * filteredGifts.length);
+    const selectedGift = filteredGifts[randomIndex];
 
     // Display result
     giftNameEl.textContent = selectedGift.name;

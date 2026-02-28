@@ -10,17 +10,32 @@
   <button id="theme-toggle" class="theme-toggle" aria-label="다크 모드 전환">🌙</button>
   <div class="container">
     <h1>💝 발렌타인데이 선물 추천 💝</h1>
-    <p class="subtitle">얼마를 생각하고 계신가요?</p>
+    <p class="subtitle">그녀의 취향과 예산을 알려주세요!</p>
     
     <div class="input-section">
-      <select id="price-range">
-        <option value="under1">1만원 이하</option>
-        <option value="1to3">1만원 ~ 3만원</option>
-        <option value="3to5">3만원 ~ 5만원</option>
-        <option value="5to10">5만원 ~ 10만원</option>
-        <option value="over10">10만원 이상</option>
+      <select id="age-group" required>
+        <option value="" disabled selected>연령대 선택</option>
+        <option value="10s">10대 (학생)</option>
+        <option value="20s">20대 (대학생/사회초년생)</option>
+        <option value="30s">30대 이상 (직장인)</option>
       </select>
-      <button id="recommend-btn">선물 추천받기</button>
+      
+      <select id="style-type" required>
+        <option value="" disabled selected>평소 스타일 및 관심사</option>
+        <option value="practical">실용성 / 데일리 아이템</option>
+        <option value="beauty">뷰티 / 코스메틱</option>
+        <option value="romantic">감성 / 예쁜 쓰레기 환영</option>
+        <option value="foodie">맛집 / 핫플 / 호캉스</option>
+      </select>
+
+      <select id="price-range" required>
+        <option value="" disabled selected>예산 선택</option>
+        <option value="under3">3만원 이하 (가볍게)</option>
+        <option value="3to5">3만원 ~ 5만원 (센스있게)</option>
+        <option value="5to10">5만원 ~ 10만원 (정성껏)</option>
+        <option value="over10">10만원 이상 (특별하게)</option>
+      </select>
+      <button id="recommend-btn">맞춤 선물 추천받기</button>
     </div>
 
     <div id="result" class="result-container hidden">
