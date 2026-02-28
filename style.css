@@ -161,7 +161,29 @@ button:active {
 #gift-desc {
   font-size: 1rem;
   opacity: 0.9;
-  margin: 0;
+  margin: 0 0 20px 0;
+}
+
+.buy-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--container-bg);
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  margin-top: 10px;
+}
+
+.buy-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.buy-btn:active {
+  transform: scale(0.98);
 }
 
 /* Contact Section & Comments Section */
