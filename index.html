@@ -3,23 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>로또 번호 추첨기</title>
+  <title>발렌타인데이 선물 추천기</title>
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body>
   <button id="theme-toggle" class="theme-toggle" aria-label="다크 모드 전환">🌙</button>
   <div class="container">
-    <h1>로또 번호 추첨기</h1>
-    <div id="result" class="numbers-container">
-      <div class="number placeholder">?</div>
-      <div class="number placeholder">?</div>
-      <div class="number placeholder">?</div>
-      <div class="number placeholder">?</div>
-      <div class="number placeholder">?</div>
-      <div class="number placeholder">?</div>
-    </div>
-    <button id="generate-btn">번호 뽑기</button>
+    <h1>💝 발렌타인데이 선물 추천 💝</h1>
+    <p class="subtitle">얼마를 생각하고 계신가요?</p>
     
+    <div class="input-section">
+      <select id="price-range">
+        <option value="under1">1만원 이하</option>
+        <option value="1to3">1만원 ~ 3만원</option>
+        <option value="3to5">3만원 ~ 5만원</option>
+        <option value="5to10">5만원 ~ 10만원</option>
+        <option value="over10">10만원 이상</option>
+      </select>
+      <button id="recommend-btn">선물 추천받기</button>
+    </div>
+
+    <div id="result" class="result-container hidden">
+      <div class="gift-icon">🎁</div>
+      <h2 id="gift-name">선물이 여기에 표시됩니다.</h2>
+      <p id="gift-desc"></p>
+    </div>
+
     <div class="contact-section">
       <hr>
       <h3>제휴 문의</h3>
