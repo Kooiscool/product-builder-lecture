@@ -171,7 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initCategoryFilter();
   }
 
-  // 발렌타인 추천기 (기사 페이지용)
+  // 메인 맞춤 추천기
+  if (document.getElementById('rc-submit')) {
+    initMainRecommender();
+  }
+
+  // 기사 내 발렌타인 추천기 (레거시)
   if (document.getElementById('recommend-btn')) {
     initRecommender();
   }
@@ -373,6 +378,160 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
   }
 });
+
+/* ===================== MAIN RECOMMENDER ===================== */
+function initMainRecommender() {
+  const submitBtn = document.getElementById('rc-submit');
+  const retryBtn = document.getElementById('rc-retry');
+  const errorEl = document.getElementById('rc-error');
+  const resultsSection = document.getElementById('rc-results');
+  const resultsGrid = document.getElementById('rc-results-grid');
+  const resultsTitle = document.getElementById('rc-results-title');
+
+  const S = (q) => `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(q)}`;
+
+  // 금액대 정의
+  const BUDGETS = [
+    { key: 'under1', label: '1만원 이하', tag: '가성비', css: 'budget-low' },
+    { key: '1to3',   label: '1~3만원',   tag: '센스있는', css: 'budget-mid' },
+    { key: '3to5',   label: '3~5만원',   tag: '인기',     css: 'budget-high' },
+    { key: '5to10',  label: '5~10만원',  tag: '프리미엄', css: 'budget-premium' },
+    { key: 'over10', label: '10만원 이상', tag: '럭셔리',  css: 'budget-luxury' }
+  ];
+
+  // ===== 대규모 선물 데이터베이스 =====
+  const GIFTS = [
+    // ── 1만원 이하 ──
+    { name: "스타벅스 음료 쿠폰", desc: "누구나 부담없이 즐기는 커피 한 잔", reason: "가격 부담 없이 마음을 전하기 가장 좋은 선물. 카카오톡으로 간편하게 보낼 수 있어 온라인 선물로도 최적입니다.", budget: "under1", recipient: ["girlfriend","boyfriend","friend","colleague"], occasion: ["birthday","thankyou","nooccasion","valentine","christmas"], age: ["10s","20s","30s","40s","50s"], interest: ["food","tech","beauty","interior","health"], link: S("스타벅스 기프트카드") },
+    { name: "고급 입욕제 세트", desc: "하루의 피로를 녹이는 향기로운 목욕", reason: "가벼운 가격이지만 '나를 위한 시간'을 선물하는 센스있는 아이템입니다.", budget: "under1", recipient: ["girlfriend","friend","colleague"], occasion: ["birthday","thankyou","nooccasion","christmas"], age: ["20s","30s","40s"], interest: ["beauty","interior"], link: S("입욕제 선물세트") },
+    { name: "편의점 상품권 1만원", desc: "실용 100%, 호불호 0%의 선물", reason: "학생에게는 가장 현실적으로 기쁜 선물입니다. 편의점에서 간식을 실컷 고르는 재미까지!", budget: "under1", recipient: ["friend","child"], occasion: ["birthday","graduation","thankyou","nooccasion"], age: ["10s","20s"], interest: ["food","tech","beauty","interior","health"], link: S("편의점 상품권") },
+    { name: "프리미엄 핸드크림", desc: "매일 쓰는 보습템, 센스있는 소품", reason: "향이 좋은 핸드크림은 실용적이면서도 기분 좋은 소소한 럭셔리를 선사합니다.", budget: "under1", recipient: ["girlfriend","friend","colleague"], occasion: ["birthday","thankyou","nooccasion","christmas","valentine"], age: ["20s","30s","40s","50s"], interest: ["beauty"], link: S("프리미엄 핸드크림 선물") },
+    { name: "감성 메시지 엽서 + 캔들", desc: "따뜻한 마음을 전하는 감성 세트", reason: "말로 하기 어려운 진심을 예쁜 엽서와 은은한 캔들로 전달할 수 있습니다.", budget: "under1", recipient: ["girlfriend","friend"], occasion: ["birthday","thankyou","nooccasion","valentine","anniversary"], age: ["10s","20s","30s"], interest: ["interior"], link: S("감성캔들 엽서 세트") },
+    { name: "건강 에너지바 선물세트", desc: "건강을 챙기는 맛있는 간식", reason: "운동하는 분께 실용적이면서 건강까지 생각한 선물입니다.", budget: "under1", recipient: ["boyfriend","friend","colleague","parents"], occasion: ["birthday","thankyou","nooccasion"], age: ["20s","30s","40s","50s"], interest: ["health"], link: S("에너지바 프로틴바 선물세트") },
+
+    // ── 1~3만원 ──
+    { name: "올리브영 기프트카드 3만원", desc: "취향대로 고르는 뷰티 쇼핑 찬스", reason: "화장품은 취향을 타기 때문에 직접 고를 수 있는 상품권이 실패 확률 0%의 선택입니다.", budget: "1to3", recipient: ["girlfriend","friend"], occasion: ["birthday","valentine","christmas","thankyou","nooccasion"], age: ["10s","20s","30s"], interest: ["beauty"], link: S("올리브영 기프트카드 3만원") },
+    { name: "탬버린즈 핸드크림", desc: "힙한 패키징과 독보적인 향기", reason: "스몰 럭셔리의 정석. 가벼운 가격이지만 고급스러운 느낌을 줘 만족도가 매우 높습니다.", budget: "1to3", recipient: ["girlfriend","friend","colleague"], occasion: ["birthday","valentine","thankyou","nooccasion","christmas"], age: ["20s","30s"], interest: ["beauty"], link: S("탬버린즈 핸드크림") },
+    { name: "양키캔들 스몰자 + 워머", desc: "은은한 분위기의 향기 인테리어", reason: "불을 붙이지 않아 안전하고, 은은한 조명 역할까지. 방 꾸미기를 좋아하는 분께 완벽합니다.", budget: "1to3", recipient: ["girlfriend","friend","colleague"], occasion: ["housewarming","birthday","christmas","nooccasion"], age: ["20s","30s","40s"], interest: ["interior"], link: S("양키캔들 스몰자 워머 세트") },
+    { name: "고디바 초콜릿 골드 컬렉션", desc: "프리미엄 브랜드의 달콤한 감동", reason: "명품 초콜릿의 패키지와 맛 모두 선물의 격을 올려줍니다. 기념일에 특히 어울립니다.", budget: "1to3", recipient: ["girlfriend","boyfriend","friend","colleague","parents"], occasion: ["valentine","birthday","christmas","thankyou","anniversary"], age: ["20s","30s","40s","50s"], interest: ["food"], link: S("고디바 골드 컬렉션") },
+    { name: "스탠리(STANLEY) 퀜처 텀블러", desc: "SNS 대세 보온보냉 실용템", reason: "매일 쓰는 텀블러라 실용적이고, 트렌디한 디자인으로 센스있다는 소리를 들을 수 있습니다.", budget: "1to3", recipient: ["girlfriend","boyfriend","friend","colleague"], occasion: ["birthday","graduation","thankyou","nooccasion"], age: ["10s","20s","30s","40s"], interest: ["tech","health"], link: S("스탠리 퀜처 텀블러") },
+    { name: "배달의민족 기프트카드", desc: "맛있는 한 끼를 선물하는 센스", reason: "음식 좋아하는 분께는 이것만큼 확실한 선물이 없습니다. 원하는 음식을 직접 골라 먹는 행복!", budget: "1to3", recipient: ["boyfriend","friend","colleague","child"], occasion: ["birthday","thankyou","nooccasion","graduation"], age: ["10s","20s","30s","40s"], interest: ["food"], link: S("배달의민족 기프트카드") },
+    { name: "무선 충전 패드", desc: "책상 위를 깔끔하게 정리하는 필수템", reason: "매일 쓰는 실용품이라 감사하게 쓸 수 있고, 깔끔한 디자인으로 인테리어까지 챙깁니다.", budget: "1to3", recipient: ["boyfriend","friend","colleague","parents"], occasion: ["birthday","thankyou","nooccasion","christmas"], age: ["20s","30s","40s","50s"], interest: ["tech"], link: S("무선 충전패드") },
+    { name: "프리미엄 견과 선물세트", desc: "건강하고 맛있는 효도 간식", reason: "부모님이나 어른에게 가장 무난하면서도 실용적인 건강 선물입니다.", budget: "1to3", recipient: ["parents","colleague"], occasion: ["holiday","birthday","thankyou","housewarming"], age: ["40s","50s"], interest: ["health","food"], link: S("견과류 선물세트") },
+    { name: "네임펜 각인 볼펜 세트", desc: "세상에 하나뿐인 이니셜 문구", reason: "이름 각인은 특별함을 더해주고, 실용적이면서도 기억에 남는 졸업·입사 선물입니다.", budget: "1to3", recipient: ["friend","colleague","boyfriend"], occasion: ["graduation","birthday","thankyou"], age: ["20s","30s","40s"], interest: ["tech","interior"], link: S("각인 볼펜 선물") },
+    { name: "레고 미니 세트 / 나노블럭", desc: "조립하는 재미가 있는 소품 선물", reason: "아이부터 어른까지 즐길 수 있고, 완성 후 인테리어 소품으로도 활용 가능합니다.", budget: "1to3", recipient: ["child","friend","boyfriend"], occasion: ["birthday","christmas","nooccasion"], age: ["10s","20s","30s"], interest: ["interior","tech"], link: S("나노블럭 선물") },
+
+    // ── 3~5만원 ──
+    { name: "이솝(Aesop) 레저렉션 핸드 밤", desc: "하이엔드 핸드크림의 대명사", reason: "내 돈 주고 사기엔 아깝지만 받으면 가장 기분 좋은 '스몰 럭셔리'의 대표주자입니다.", budget: "3to5", recipient: ["girlfriend","friend","colleague"], occasion: ["birthday","valentine","christmas","thankyou"], age: ["20s","30s","40s"], interest: ["beauty"], link: S("이솝 레저렉션 핸드 밤") },
+    { name: "러쉬(LUSH) 배쓰밤 세트", desc: "알록달록 입욕제의 힐링 타임", reason: "형형색색 예쁜 디자인에 언박싱 반응이 가장 좋습니다. 피로 회복에도 탁월한 감성 선물.", budget: "3to5", recipient: ["girlfriend","friend"], occasion: ["birthday","valentine","christmas","nooccasion"], age: ["10s","20s","30s"], interest: ["beauty","interior"], link: S("러쉬 배쓰밤 세트") },
+    { name: "와인 & 치즈 세트", desc: "로맨틱한 저녁을 완성하는 한 병", reason: "함께 와인을 즐기며 분위기를 연출할 수 있는 일석이조 아이템입니다.", budget: "3to5", recipient: ["girlfriend","boyfriend","friend"], occasion: ["anniversary","valentine","birthday","housewarming","christmas"], age: ["20s","30s","40s"], interest: ["food"], link: S("와인 치즈 세트") },
+    { name: "JBL Go 3 블루투스 스피커", desc: "어디서든 음악을 즐기는 포터블 스피커", reason: "작지만 강력한 사운드와 귀여운 디자인. 캠핑, 운동, 일상 어디서나 쓸 수 있는 실용템입니다.", budget: "3to5", recipient: ["boyfriend","friend","colleague"], occasion: ["birthday","christmas","graduation","nooccasion"], age: ["10s","20s","30s","40s"], interest: ["tech"], link: S("JBL Go3 블루투스 스피커") },
+    { name: "아로마 디퓨저 세트", desc: "집 안을 호텔처럼 바꿔주는 향기", reason: "실용적이면서도 인테리어 효과까지 있어 집들이 선물로 센스있다는 칭찬을 받을 수 있습니다.", budget: "3to5", recipient: ["girlfriend","friend","colleague","parents"], occasion: ["housewarming","birthday","thankyou","christmas","nooccasion"], age: ["20s","30s","40s","50s"], interest: ["interior"], link: S("프리미엄 디퓨저 세트") },
+    { name: "나이키/아디다스 운동 양말 세트 + 보틀", desc: "운동하는 분을 위한 실용 세트", reason: "운동을 좋아하는 분께 매일 쓸 수 있는 실용적인 스포츠 용품은 항상 환영받습니다.", budget: "3to5", recipient: ["boyfriend","friend","colleague"], occasion: ["birthday","nooccasion","thankyou"], age: ["10s","20s","30s","40s"], interest: ["health"], link: S("나이키 양말 세트 선물") },
+    { name: "정관장 홍삼정 에브리타임", desc: "매일 한 포, 건강을 챙기는 효도템", reason: "부모님 건강을 생각하는 마음이 담긴 가장 클래식한 효도 선물입니다.", budget: "3to5", recipient: ["parents"], occasion: ["birthday","holiday","thankyou"], age: ["40s","50s"], interest: ["health","food"], link: S("정관장 에브리타임") },
+    { name: "문화상품권 5만원", desc: "영화, 공연, 도서 등 자유롭게 사용", reason: "취향을 몰라도 걱정 없는 만능 선물. 좋아하는 곳에 직접 쓸 수 있어 만족도가 높습니다.", budget: "3to5", recipient: ["friend","colleague","child"], occasion: ["birthday","graduation","thankyou","christmas"], age: ["10s","20s","30s"], interest: ["food","interior","tech","beauty","health"], link: S("문화상품권 5만원") },
+
+    // ── 5~10만원 ──
+    { name: "샤넬 루쥬 코코 밤", desc: "로고만으로 기분 좋아지는 럭셔리 립밤", reason: "립스틱과 달리 색상 선택이 필요 없고, 하얀 샤넬 로고의 시각적 만족감이 엄청납니다.", budget: "5to10", recipient: ["girlfriend"], occasion: ["birthday","valentine","anniversary","christmas"], age: ["20s","30s","40s"], interest: ["beauty"], link: S("샤넬 루쥬 코코 밤") },
+    { name: "제이에스티나 데일리 목걸이", desc: "영롱한 빛의 심플 주얼리", reason: "심플한 펜던트는 어떤 옷에나 어울리며, '당신을 소중히 여긴다'는 메시지를 전달합니다.", budget: "5to10", recipient: ["girlfriend"], occasion: ["anniversary","birthday","valentine","christmas"], age: ["20s","30s","40s"], interest: ["beauty","interior"], link: S("제이에스티나 목걸이") },
+    { name: "미들급 오마카세 식사권", desc: "눈과 입이 즐거운 특별한 경험", reason: "물건 대신 '잊지 못할 경험'을 선물하세요. 특별한 식사는 최고의 기념일 추억이 됩니다.", budget: "5to10", recipient: ["girlfriend","boyfriend","parents","friend"], occasion: ["anniversary","birthday","valentine","thankyou"], age: ["20s","30s","40s","50s"], interest: ["food"], link: "https://app.catchtable.co.kr/" },
+    { name: "삼성 갤럭시 버즈 FE", desc: "가성비 최강 무선 이어폰", reason: "음악이나 영상을 즐기는 분께 매일 사용하는 실용 아이템. 통학/출퇴근의 질이 달라집니다.", budget: "5to10", recipient: ["boyfriend","friend","child"], occasion: ["birthday","graduation","christmas"], age: ["10s","20s","30s"], interest: ["tech"], link: S("갤럭시 버즈 FE") },
+    { name: "발뮤다 토스터", desc: "매일 아침을 특별하게 만드는 주방 명품", reason: "감각적인 디자인과 바삭한 토스트의 조합. 신혼부부나 집들이 선물로 최적입니다.", budget: "5to10", recipient: ["friend","colleague","parents"], occasion: ["wedding","housewarming","birthday"], age: ["20s","30s","40s","50s"], interest: ["food","interior"], link: S("발뮤다 토스터") },
+    { name: "프리미엄 한우 선물세트", desc: "가장 확실한 명절 효도 선물", reason: "좋은 고기 앞에 슬픈 사람 없습니다. 온 가족이 함께 즐기는 최고급 선물세트입니다.", budget: "5to10", recipient: ["parents"], occasion: ["holiday","birthday","thankyou"], age: ["40s","50s"], interest: ["food","health"], link: S("프리미엄 한우 선물세트") },
+    { name: "닥터마틴 마일즈 샌들 / 1461 슈즈", desc: "클래식하면서 트렌디한 패션 아이템", reason: "유행을 타지 않는 클래식한 디자인으로 오래 신을 수 있어 실용성과 스타일 모두 잡습니다.", budget: "5to10", recipient: ["girlfriend","boyfriend","friend"], occasion: ["birthday","graduation","christmas","nooccasion"], age: ["10s","20s","30s"], interest: ["beauty","tech"], link: S("닥터마틴") },
+    { name: "안마기 / 마사지건", desc: "뭉친 근육을 풀어주는 힐링 아이템", reason: "일하느라 지친 몸을 생각하는 건강 선물. 부모님이나 운동하는 분께 특히 감동적입니다.", budget: "5to10", recipient: ["parents","boyfriend","friend"], occasion: ["birthday","thankyou","holiday"], age: ["30s","40s","50s"], interest: ["health"], link: S("마사지건 안마기") },
+
+    // ── 10만원 이상 ──
+    { name: "바이레도(BYREDO) 50ml 향수", desc: "독보적인 하이엔드 니치 향수", reason: "흔하지 않은 고급 향기와 세련된 보틀 디자인. 화장대 위의 멋진 오브제가 됩니다.", budget: "over10", recipient: ["girlfriend"], occasion: ["anniversary","birthday","valentine","christmas"], age: ["20s","30s","40s"], interest: ["beauty"], link: S("바이레도 향수 50ml") },
+    { name: "애플 에어팟 프로", desc: "삶의 질을 바꾸는 노이즈 캔슬링 이어폰", reason: "한번 쓰면 절대 돌아갈 수 없는 극강의 실용템. 통학·출퇴근의 질을 완전히 바꿔줍니다.", budget: "over10", recipient: ["girlfriend","boyfriend","friend","child"], occasion: ["birthday","graduation","christmas","anniversary"], age: ["10s","20s","30s","40s"], interest: ["tech"], link: S("에어팟 프로 2세대") },
+    { name: "5성급 럭셔리 호텔 호캉스", desc: "완벽한 하루의 휴식을 선물하다", reason: "가격은 높지만 감동도 압도적. 룸서비스와 수영장을 즐기며 스트레스를 날려버리세요.", budget: "over10", recipient: ["girlfriend","boyfriend","parents"], occasion: ["anniversary","birthday","valentine","christmas","thankyou"], age: ["20s","30s","40s","50s"], interest: ["food","interior"], link: "https://kr.trip.com/hotels/" },
+    { name: "다이슨 에어랩 / 슈퍼소닉", desc: "뷰티 가전의 끝판왕", reason: "여성들의 위시리스트 1순위. 매일 쓰는 실용성에 명품 브랜드의 만족감까지 갖춘 최고의 선물.", budget: "over10", recipient: ["girlfriend"], occasion: ["birthday","anniversary","christmas","valentine"], age: ["20s","30s","40s"], interest: ["beauty","tech"], link: S("다이슨 에어랩") },
+    { name: "애플 워치 SE", desc: "건강과 스타일을 동시에 챙기는 스마트워치", reason: "운동 기록, 건강 관리, 일정 알림까지. 실용성과 패션을 모두 갖춘 하이테크 선물입니다.", budget: "over10", recipient: ["boyfriend","girlfriend","parents"], occasion: ["birthday","graduation","christmas","anniversary"], age: ["20s","30s","40s","50s"], interest: ["tech","health"], link: S("애플 워치 SE") },
+    { name: "발뮤다/버미큘라 프리미엄 가전", desc: "주방을 격상시키는 프리미엄 조리가전", reason: "결혼·집들이 선물의 왕. 매일 쓰는 실용성에 인테리어까지 완벽한 고급 가전입니다.", budget: "over10", recipient: ["friend","colleague","parents"], occasion: ["wedding","housewarming"], age: ["20s","30s","40s","50s"], interest: ["food","interior"], link: S("발뮤다 가전 선물") },
+    { name: "프리미엄 골프 용품 세트", desc: "골프 좋아하는 분을 위한 완벽한 선물", reason: "골프 라운딩을 즐기시는 부모님이나 상사에게 최고의 감동을 드릴 수 있습니다.", budget: "over10", recipient: ["parents","colleague","boyfriend"], occasion: ["birthday","holiday","thankyou"], age: ["40s","50s"], interest: ["health"], link: S("프리미엄 골프 선물세트") },
+    { name: "르크루제 냄비 세트", desc: "주방 위의 예술품, 프리미엄 쿡웨어", reason: "화려한 색감에 뛰어난 열전도. 요리하는 즐거움을 선물하는 결혼·집들이 선물의 정석.", budget: "over10", recipient: ["friend","parents"], occasion: ["wedding","housewarming","birthday"], age: ["30s","40s","50s"], interest: ["food","interior"], link: S("르크루제 냄비 세트") }
+  ];
+
+  // ===== 추천 로직 =====
+  submitBtn.addEventListener('click', () => {
+    const recipient = document.getElementById('rc-recipient').value;
+    const occasion = document.getElementById('rc-occasion').value;
+    const age = document.getElementById('rc-age').value;
+    const interest = document.getElementById('rc-interest').value;
+
+    if (!recipient || !occasion || !age || !interest) {
+      errorEl.classList.remove('hidden');
+      return;
+    }
+    errorEl.classList.add('hidden');
+
+    // 각 금액대별 최적의 선물 1개씩 선정
+    const results = BUDGETS.map(budget => {
+      // 1차: 모든 조건 일치
+      let pool = GIFTS.filter(g =>
+        g.budget === budget.key &&
+        g.recipient.includes(recipient) &&
+        g.occasion.includes(occasion) &&
+        g.age.includes(age) &&
+        g.interest.includes(interest)
+      );
+      // 2차: 대상 + 관심사
+      if (!pool.length) pool = GIFTS.filter(g =>
+        g.budget === budget.key &&
+        g.recipient.includes(recipient) &&
+        g.interest.includes(interest)
+      );
+      // 3차: 대상 + 상황
+      if (!pool.length) pool = GIFTS.filter(g =>
+        g.budget === budget.key &&
+        g.recipient.includes(recipient) &&
+        g.occasion.includes(occasion)
+      );
+      // 4차: 대상만
+      if (!pool.length) pool = GIFTS.filter(g =>
+        g.budget === budget.key &&
+        g.recipient.includes(recipient)
+      );
+      // 5차: 해당 금액대 전체
+      if (!pool.length) pool = GIFTS.filter(g => g.budget === budget.key);
+
+      const gift = pool[Math.floor(Math.random() * pool.length)];
+      return { budget, gift };
+    });
+
+    // 대상 라벨
+    const recipientLabels = { girlfriend: '여자친구/아내', boyfriend: '남자친구/남편', parents: '부모님', friend: '친구', colleague: '직장 동료', child: '아이/조카' };
+    resultsTitle.textContent = `${recipientLabels[recipient]}에게 딱 맞는 선물`;
+
+    // 결과 렌더링
+    resultsGrid.innerHTML = results.map(({ budget, gift }) => `
+      <div class="rc-card">
+        <div class="rc-card-header ${budget.css}">
+          <span>${budget.label}</span>
+          <span>${budget.tag}</span>
+        </div>
+        <div class="rc-card-body">
+          <div class="rc-gift-name">${gift.name}</div>
+          <div class="rc-gift-desc">${gift.desc}</div>
+          <div class="rc-gift-reason">
+            <strong>추천 이유</strong>
+            ${gift.reason}
+          </div>
+          <a href="${gift.link}" target="_blank" rel="noopener noreferrer" class="rc-gift-link">자세히 알아보기</a>
+        </div>
+      </div>
+    `).join('');
+
+    resultsSection.classList.remove('hidden');
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // 다시 추천받기
+  retryBtn.addEventListener('click', () => {
+    resultsSection.classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
 
 /* ===================== VALENTINE RECOMMENDER ===================== */
 function initRecommender() {
