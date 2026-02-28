@@ -3,62 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>발렌타인데이 선물 추천기</title>
+  <meta name="description" content="여자친구, 아내, 썸녀를 위한 완벽한 발렌타인데이 선물을 추천해드립니다. 연령대, 취향, 예산에 맞는 센스있는 선물을 지금 바로 찾아보세요.">
+  <title>발렌타인데이 맞춤 선물 추천 가이드 | 센스있는 남자 되기</title>
   <meta name="google-adsense-account" content="ca-pub-3181969246209657">
   <link href='/style.css' rel='stylesheet'>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3181969246209657" crossorigin="anonymous"></script>
 </head>
 <body>
   <button id="theme-toggle" class="theme-toggle" aria-label="다크 모드 전환">🌙</button>
+  
   <div class="container">
-    <h1>💝 발렌타인데이 선물 추천 💝</h1>
-    <p class="subtitle">그녀의 취향과 예산을 알려주세요!</p>
+    <header class="site-header">
+      <h1>💝 발렌타인데이 맞춤 선물 추천 가이드</h1>
+      <p class="subtitle">"매번 똑같은 초콜릿은 그만! 그녀의 마음을 사로잡을 센스있는 선물을 찾아보세요."</p>
+    </header>
+
+    <article class="intro-article">
+      <h2>완벽한 선물을 고르기 어려운 이유</h2>
+      <p>발렌타인데이가 다가오면 많은 남성들이 고민에 빠집니다. 너무 과하면 부담스럽고, 너무 가벼우면 성의 없어 보일 수 있기 때문이죠. 성공적인 선물의 핵심은 상대방의 <strong>연령대</strong>, 평소 <strong>라이프스타일</strong>, 그리고 나의 <strong>예산</strong>을 종합적으로 고려하는 것입니다. 아래의 맞춤 추천기를 통해 실패 없는 선물을 골라보세요!</p>
+    </article>
     
-    <div class="input-section">
-      <select id="age-group" required>
-        <option value="" disabled selected>연령대 선택</option>
-        <option value="10s">10대 (학생)</option>
-        <option value="20s">20대 (대학생/사회초년생)</option>
-        <option value="30s">30대 이상 (직장인)</option>
-      </select>
+    <div class="tool-section">
+      <h3>🎁 3초 맞춤 선물 큐레이터</h3>
+      <p class="tool-desc">그녀의 정보를 입력하면 빅데이터를 기반으로 최적의 아이템을 선별해 드립니다.</p>
       
-      <select id="style-type" required>
-        <option value="" disabled selected>평소 스타일 및 관심사</option>
-        <option value="practical">실용성 / 데일리 아이템</option>
-        <option value="beauty">뷰티 / 코스메틱</option>
-        <option value="romantic">감성 / 예쁜 쓰레기 환영</option>
-        <option value="foodie">맛집 / 핫플 / 호캉스</option>
-      </select>
+      <div id="error-message" class="error-msg hidden">모든 정보를 선택해주세요! 😉</div>
+      
+      <div class="input-section">
+        <select id="age-group" required aria-label="연령대 선택">
+          <option value="" disabled selected>1. 연령대 선택</option>
+          <option value="10s">10대 (학생)</option>
+          <option value="20s">20대 (대학생/사회초년생)</option>
+          <option value="30s">30대 이상 (직장인)</option>
+        </select>
+        
+        <select id="style-type" required aria-label="스타일 선택">
+          <option value="" disabled selected>2. 평소 스타일 및 관심사</option>
+          <option value="practical">실용성 중시 (데일리 아이템)</option>
+          <option value="beauty">뷰티/코스메틱 관심 많음</option>
+          <option value="romantic">감성적 / 디자인, 패키지 중시</option>
+          <option value="foodie">맛집 탐방 / 호캉스 선호</option>
+        </select>
 
-      <select id="price-range" required>
-        <option value="" disabled selected>예산 선택</option>
-        <option value="under3">3만원 이하 (가볍게)</option>
-        <option value="3to5">3만원 ~ 5만원 (센스있게)</option>
-        <option value="5to10">5만원 ~ 10만원 (정성껏)</option>
-        <option value="over10">10만원 이상 (특별하게)</option>
-      </select>
-      <button id="recommend-btn">맞춤 선물 추천받기</button>
+        <select id="price-range" required aria-label="예산 선택">
+          <option value="" disabled selected>3. 예산 선택</option>
+          <option value="under3">3만원 이하 (가볍고 센스있게)</option>
+          <option value="3to5">3만원 ~ 5만원 (가장 인기있는 구간)</option>
+          <option value="5to10">5만원 ~ 10만원 (정성을 듬뿍 담아)</option>
+          <option value="over10">10만원 이상 (특별하고 럭셔리하게)</option>
+        </select>
+        <button id="recommend-btn">결과 확인하기</button>
+      </div>
+
+      <div id="result" class="result-container hidden" aria-live="polite">
+        <div class="gift-icon">🎉</div>
+        <h3 class="result-label">추천하는 선물은 바로...</h3>
+        <h2 id="gift-name">선물 이름</h2>
+        <p id="gift-desc" class="gift-description"></p>
+        <div class="reason-box">
+          <strong>💡 에디터의 추천 이유:</strong>
+          <p id="gift-reason"></p>
+        </div>
+        <a id="buy-link" class="buy-btn" href="#" target="_blank" rel="noopener noreferrer">🛒 자세히 알아보기</a>
+      </div>
     </div>
 
-    <div id="result" class="result-container hidden">
-      <div class="gift-icon">🎁</div>
-      <h2 id="gift-name">선물이 여기에 표시됩니다.</h2>
-      <p id="gift-desc"></p>
-      <a id="buy-link" class="buy-btn" href="#" target="_blank" style="display: none;">🛒 구매하러 가기</a>
-    </div>
+    <article class="guide-article">
+      <h2>실패 없는 선물을 위한 3가지 황금 규칙</h2>
+      <ul>
+        <li><strong>첫째, 실용성 vs 감성 파악하기:</strong> 평소 물건을 살 때 예쁜 쓰레기(?)를 좋아하는 편인지, 아니면 매일 쓸 수 있는 실용적인 물건을 선호하는지 파악하세요.</li>
+        <li><strong>둘째, 포장의 중요성:</strong> 발렌타인데이는 로맨틱한 기념일입니다. 내용물만큼이나 예쁜 포장과 손편지가 감동을 두 배로 만듭니다.</li>
+        <li><strong>셋째, 취향을 모른다면 '경험'을 선물하세요:</strong> 도저히 뭘 사야 할지 모르겠다면, 분위기 좋은 레스토랑 식사권이나 호캉스 같은 특별한 '시간'을 선물하는 것이 가장 안전하고 만족도가 높습니다.</li>
+      </ul>
+      <p>본 사이트의 추천 목록은 2030 여성들의 실제 선호도 조사와 트렌드를 반영하여 주기적으로 업데이트됩니다. 추천해 드린 아이템과 함께 따뜻한 마음을 전해보세요!</p>
+    </article>
 
     <div class="contact-section">
       <hr>
-      <h3>제휴 문의</h3>
+      <h3>🤝 광고 및 제휴 문의</h3>
+      <p>본 큐레이션 사이트에 제품 입점 및 제휴를 원하시는 브랜드는 아래 폼으로 문의 바랍니다.</p>
       <form action="https://formspree.io/f/xkovelwz" method="POST" id="contact-form">
         <div class="input-group">
-          <input type="text" name="name" placeholder="성함/업체명" required>
+          <input type="text" name="name" placeholder="성함/업체명" required aria-label="성함 또는 업체명">
         </div>
         <div class="input-group">
-          <input type="email" name="email" placeholder="이메일 주소" required>
+          <input type="email" name="email" placeholder="이메일 주소" required aria-label="이메일 주소">
         </div>
         <div class="input-group">
-          <textarea name="message" placeholder="문의 내용을 입력해주세요." required></textarea>
+          <textarea name="message" placeholder="문의 내용을 상세히 입력해주세요." required aria-label="문의 내용"></textarea>
         </div>
         <button type="submit" class="submit-btn">문의 보내기</button>
       </form>
@@ -66,19 +98,17 @@
 
     <div class="comments-section">
       <hr>
-      <h3>댓글</h3>
+      <h3>💬 소통하기</h3>
+      <p>여러분만의 기발한 선물 아이디어나 추천 후기를 댓글로 남겨주세요!</p>
       <div id="disqus_thread"></div>
       <script>
-          /**
-          *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-          *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
           /*
           var disqus_config = function () {
-          this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-          this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+          this.page.url = PAGE_URL;  
+          this.page.identifier = PAGE_IDENTIFIER; 
           };
           */
-          (function() { // DON'T EDIT BELOW THIS LINE
+          (function() { 
           var d = document, s = d.createElement('script');
           s.src = 'https://productbuilder-7dnqihw7xu.disqus.com/embed.js';
           s.setAttribute('data-timestamp', +new Date());
@@ -88,6 +118,17 @@
       <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
   </div>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 발렌타인데이 선물 추천 가이드. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">사이트 소개</a> | 
+      <a href="#">이용약관</a> | 
+      <a href="#" style="font-weight:bold;">개인정보처리방침</a>
+    </div>
+    <p class="disclaimer">본 사이트는 정보 제공을 목적으로 하며, 파트너스 활동을 통해 일정액의 수수료를 제공받을 수 있습니다.</p>
+  </footer>
+
   <script defer type="text/javascript" src="/main.js"></script>
 </body>
 </html>
